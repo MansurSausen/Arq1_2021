@@ -5,7 +5,7 @@ public class Main {
 	public static void main(String[] args) {
 		
 		System.out.println("Compilador MIPS para uma calculadora de n˙meros inteiros");
-		System.out.println("Desenvolvedores: Felipe, Manser, Wiliam");
+		System.out.println("Desenvolvedores: Felipe && Manser && Wiliam");
 		
 		System.out.println("Insira a express„o a ser convertida para Assembly");
 		System.out.print("-> ");
@@ -16,15 +16,8 @@ public class Main {
 		System.out.println("Express„o " + expressao);		
 		System.out.println("....Gerando a express„o Assembly!");
 		
-		AssemblyBuilder calculo = new AssemblyBuilder();
-		
-		calculo.asm(expressao);
-		
-		/*
-		// Assembly calc = new Assembly();
-		String exp = "5 2 1 - +";
-		// calc.asm(exp);
-		System.out.println("Gerado Assembly.asm da seguinte express√£o: ");
-		System.out.println("Expressao = " + exp);*/
+		AssemblyBuilder builder = new AssemblyBuilder();	
+		//builder.asm(expressao);	
+		builder.GenerateAssemblyByExpression(expressao);
 	}
 }
