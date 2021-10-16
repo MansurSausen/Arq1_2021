@@ -9,5 +9,6 @@ public class Main {
 		System.out.println("Gerado Assembly.asm da seguinte expressão: ");
 		System.out.println("Expressao = " + exp);
 		System.out.println("---- Felipe / Manser / Wiliam ----");
+		//asdsadsadsasdas
 	}
 }
