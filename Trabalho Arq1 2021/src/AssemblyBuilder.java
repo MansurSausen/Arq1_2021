@@ -9,156 +9,126 @@ import java.util.Stack;
 
 public class AssemblyBuilder {
 
-	String assemblyDoc = ".data \n \n \n .text \n"; // string com todo código convertido para assembly
-	String[] registers = { "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$t8", "$t9" };
-	boolean[] registerUsed = { false, false, false, false, false, false, false, false, false, false };
-	Stack<Integer> registerResult = new Stack<Integer>(); // pilha para registradores que precisarão ser chamados posteriormente
+	String assemblyDoc = ".data \n \n .text \n"; // string com todo código convertido para assembly
+	String[] registers = { "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$t8", "$t9", "$s2", "$s3", "$s4", "$s5", "$s6",  "$s7" };
 
 	public void GenerateAssemblyByExpression(String expressao) {
 
-		// tokenn recebe a expressão a ser lida
+		// token recebe a expressão a ser lida
 		StringTokenizer str = new StringTokenizer(expressao);
 
-		int value1;
-		int value2;
 		Stack<Integer> stack = new Stack<Integer>(); // pilha para realizar os cálculos
 
 		String s1;
 
-		int valor = 0;
+                int value1, register_index = 0, qtd_raiz = 0, qtd_fatorial = 0, qtd_potencia = 0;
 
 		while (str.hasMoreElements()) {
 			s1 = str.nextToken();
-
-			if (s1.equals("+") || s1.equals("-") || s1.equals("*") || s1.equals("/")) {
+                        
+			if (s1.equals("+") || s1.equals("-") || s1.equals("*") || s1.equals("/") || s1.equals("s") || s1.equals("f") || s1.equals("p") || s1.equals("x")) {
 				switch (s1) {
+                                    
 				case "+":
-					value1 = stack.pop();
-					value2 = stack.pop();
-					
-					/**
-					 * value1 sempre está assumando um valor com uma contante nova durante a leitura, quando for o último elemento, o value1 vem com o valor
-					 * da última operação feita, por isso lemos value2, por ser o valor mais antigo inserido na pilha, já que os valores das operações sempre são lidas
-					 * direto no registrador
-					 * **/
-					if(stack.isEmpty() && !registerResult.isEmpty()) {
-						BuildAssembly(value2, value1, "addi", stack.size());
-						stack.push(value2 + value1);
-						valor = value2 + value1;
-					}else {
-						BuildAssembly(value1, value2, "addi", stack.size());
-						stack.push(value1 + value2);
-						valor = value1 + value2;
-					}
-
-					break;
+                    register_index--; // altera índice para pegar os dois últimos registradores utilizados para fazer operação
+                    AppendAssemblyArchive("add" + " " + registers[register_index-1] + ", " + registers[register_index-1] + ", " + registers[register_index]);
+                    break;
+                                        
 				case "-":
-					value1 = stack.pop();
-					value2 = stack.pop();
-					
-					if(stack.isEmpty() && !registerResult.isEmpty()) {
-						BuildAssembly(value2, value1, "subi", stack.size());
-						stack.push(value2 - value1);
-						valor = value2 - value1;
-					}else {
-						BuildAssembly(value1, value2, "subi", stack.size());
-						stack.push(value1 - value2);
-						valor = value1 - value2;
-					}
-
-					break;
+                    register_index--; // altera índice para pegar os dois últimos registradores utilizados para fazer operação
+                    AppendAssemblyArchive("sub" + " " + registers[register_index-1] + ", " + registers[register_index-1] + ", " + registers[register_index]);
+                    break;
+                                        
 				case "/":
-					value1 = stack.pop();
-					value2 = stack.pop();
-					
-					if(stack.isEmpty() && !registerResult.isEmpty()) {
-						BuildAssembly(value2, value1, "div", stack.size());
-						stack.push(value2 / value1);
-						valor = value2 / value1;
-					}else {
-						BuildAssembly(value1, value2, "div", stack.size());
-						stack.push(value1 / value2);
-						valor = value1 / value2;
-					}
-
-					break;
+                    register_index--; // altera índice para pegar os dois últimos registradores utilizados para fazer operação
+                    AppendAssemblyArchive("div" + " " + registers[register_index-1] + ", " + registers[register_index-1] + " ," + registers[register_index]);
+                    break;
+                                        
 				case "*":
-					value1 = stack.pop();
-					value2 = stack.pop();
-
-					if(stack.isEmpty() && !registerResult.isEmpty()) {
-						BuildAssembly(value2, value1, "mul", stack.size());
-						stack.push(value2 * value1);
-						valor = value2 * value1;
-					}else {
-						BuildAssembly(value1, value2, "mul", stack.size());
-						stack.push(value1 * value2);
-						valor = value1 * value2;
-					}
-					
-					break;
+                    register_index--; // altera índice para pegar os dois últimos registradores utilizados para fazer operação
+                    AppendAssemblyArchive("mul" + " " + registers[register_index-1] + ", " + registers[register_index-1] + ", " + registers[register_index]);
+                    break;
+                                        
+                case "x":
+                    register_index--; // altera índice para pegar os dois últimos registradores utilizados para fazer operação
+                    AppendAssemblyArchive("mul" + " " + registers[register_index-1] + ", " + registers[register_index-1] + ", " + registers[register_index]);
+                    break;
+                                        
+                case "s": // raiz quadrada
+                     qtd_raiz++;
+                     AppendAssemblyArchive(
+                     "\nli $s0, 0 \n" +
+                     "li $s1, 1 \n" +
+                     "jal calc_raiz"+qtd_raiz+"\n"+
+                     "j fim_raiz"+qtd_raiz+"\n"+
+                     "calc_raiz"+qtd_raiz+": \n"+
+                     "beqz " + registers[register_index-1]+ ", fim_calc_raiz"+qtd_raiz+"\n"+
+                     "sub " + registers[register_index-1]+ ", " + registers[register_index-1] + ", " + "$s1\n" +
+                     "addi $s1, $s1, 2\n"+
+                     "addi $s0, $s0, 1\n"+
+                     "j calc_raiz"+qtd_raiz+"\n" +
+                     "fim_calc_raiz"+qtd_raiz+":\n"+
+                     "move "+registers[register_index-1]+ ", $s0\n"+
+                     "jr $ra\n" +
+                     "fim_raiz"+qtd_raiz+": \n");
+                     break;
+                                    
+                case "f": // fatorial
+                     qtd_fatorial++;
+                     AppendAssemblyArchive(
+                     "\nli $s0, 1 \n" +
+                     "jal calc_fat" + qtd_fatorial + "\n" +
+                     "j fim_fatorial" + qtd_fatorial + " \n" +
+                     "calc_fat" + qtd_fatorial + ": \n" +
+                     "beqz " + registers[register_index-1] + ", fim_calc_fat" + qtd_fatorial + " \n" +
+                     "mul $s0, $s0," + registers[register_index-1] +
+                     "\nsubi " + registers[register_index-1] + ", " + registers[register_index-1] + ", 1\n" +
+                     "j calc_fat" + qtd_fatorial + "\n"+
+                     "fim_calc_fat" + qtd_fatorial + ": \n"+
+                     "jr $ra \n" +
+                     "fim_fatorial" + qtd_fatorial + ": \n" +
+                     "move " + registers[register_index-1] + ", $s0");
+                     break;
+                                    
+                 case "p": // potência
+                      register_index --;
+                      qtd_potencia++;
+                      AppendAssemblyArchive(
+                      "\nli $s0, 1\n" +
+                      "jal calcula_potencia" + qtd_potencia + "\n" +
+                      "j fim_potencia" + qtd_potencia + "\n" +
+                      "calcula_potencia" + qtd_potencia + ": \n" +
+                      "beqz " + registers[register_index] + ", " + "fim_calc_pot" + qtd_potencia + "\n" +
+                      "subi " + registers[register_index] + ", " + registers[register_index] + ", 1 \n" +
+                      "mul $s0," + registers[register_index-1] + ", $s0 \n" +
+                      "j calcula_potencia" + qtd_potencia + "\n" +
+                      "fim_calc_pot" + qtd_potencia + ":\n" +
+                      "jr $ra \n" +
+                      "fim_potencia" + qtd_potencia + ": \n" +
+                      "move " + registers[register_index-1] + ", $s0\n");
+                       break;
+                                    
 				}
 			} else {
-				stack.push(Integer.parseInt(s1));
+					stack.push(Integer.parseInt(s1));
+                    value1 = stack.pop();
+                    AppendAssemblyArchive(" li " + registers[register_index] + ", " + value1);
+                    register_index++;
 			}
 
 		}
-
-		System.out.println("Valor final: " + valor);
-	}
-	
-	public void BuildAssembly(int value1, int value2, String type ,int stackSize) {
-		
-		int registrador1 = 0;
-		int registrador2 = 0;
-
-		// se exister resultado de operação na pilha, pega esse registrador que possui o cálculo guardado, caso contrário pega um novo registrador
-		if(registerResult.isEmpty()) {
-			
-			registrador1 = GetFreeRegister();
-			registerUsed[registrador1] = true; // seta como registrador ocupado
-			
-			AppendAssemblyArchive(" li " + registers[registrador1] + " " + value1);
-
-			registrador2 = GetFreeRegister(); // busca o index do registrador
-			registerUsed[registrador2] = true; // seta como registrador ocupado
-			
-			AppendAssemblyArchive(type + " " + registers[registrador2] + " " + registers[registrador1] + " " + value2);	
-						
-		}else {
-			
-			registrador1 = registerResult.pop();
-			
-			registrador2 = GetFreeRegister(); // busca o index do registrador
-			registerUsed[registrador2] = true; // seta como registrador ocupado
-			
-			/**
-			 * value1 sempre está assumando um valor com uma contante nova durante a leitura, quando for o último elemento, o value1 vem com o valor
-			 * da última operação feita, por isso lemos value2, por ser o valor mais antigo inserido na pilha, já que os valores das operações sempre são lidas
-			 * direto no registrador
-			 * **/
-			AppendAssemblyArchive(type + " " + registers[registrador2] + " " + registers[registrador1] + " " + value1);	
-		}
-		
-		registerResult.add(registrador2);
+                
+                // Chamada para apresentar resultado final no MARS
+                assemblyDoc += "\n"
+                        + "li $v0, 1 \n"
+                        + "move $a0, $t0 \n"
+                        + "syscall \n";
+                
+                // GERAR ARQUIVO
+                
+                System.out.println("String: \n\n" + assemblyDoc);
 	}
 
-
-	public int GetFreeRegister() {
-		int register = 0;
-
-		for (int x = register; x < registerUsed.length; x++) {
-			if (registerUsed[x] == false) // pega o primeiro registrador com status não usado = false e para utilizar
-			{
-				register = x;
-				//registerUsed[x] = true; // seta o registrador como usado
-
-				break;
-			}
-		}
-
-		return register;
-	}
 	
 	public void AppendAssemblyArchive(String operation) {
 		assemblyDoc += "\n " + operation;
