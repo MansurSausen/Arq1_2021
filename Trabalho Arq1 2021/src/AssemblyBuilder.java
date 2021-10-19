@@ -1,6 +1,8 @@
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -117,21 +119,35 @@ public class AssemblyBuilder {
 			}
 
 		}
-                
-                // Chamada para apresentar resultado final no MARS
-                assemblyDoc += "\n"
-                        + "li $v0, 1 \n"
-                        + "move $a0, $t0 \n"
-                        + "syscall \n";
-                
-                // GERAR ARQUIVO
-                
-                System.out.println("String: \n\n" + assemblyDoc);
+		
+		// Chamada para apresentar resultado final no MARS
+		assemblyDoc += "\n \n"
+				+ "li $v0, 1 \n"
+				+ "move $a0, $t0 \n"
+				+ "syscall \n";
+               
+		
+		System.out.println("String: \n\n" + assemblyDoc);
+
+        // GERAR ARQUIVO ASSEMBLY .asm
+		try {
+			generateArchive();
+			System.out.println("\n -> Arquivo .asm gerado com sucesso");
+		}catch(Exception ex) {
+			System.out.println("\n -> Não foi possível gerar o arquivo .asm");
+		}	
 	}
 
 	
 	public void AppendAssemblyArchive(String operation) {
 		assemblyDoc += "\n " + operation;
+	}
+	
+	public void generateArchive() throws FileNotFoundException {
+		PrintWriter out = new PrintWriter("Assembly.asm");
+		out.println("#Trabalho de ARQ1 - Calculadora MIPS - Felipe H. Shulz / Mansur Sausen / Wiliam K. Franco\n");
+		out.println(assemblyDoc);
+		out.close();
 	}
 	
 }
