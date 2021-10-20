@@ -23,7 +23,7 @@ public class AssemblyBuilder {
 
 		String s1;
 
-                int value1, register_index = 0, qtd_raiz = 0, qtd_fatorial = 0, qtd_potencia = 0;
+        int value1, register_index = 0, qtd_raiz = 0, qtd_fatorial = 0, qtd_potencia = 0;
 
 		while (str.hasMoreElements()) {
 			s1 = str.nextToken();
@@ -114,7 +114,7 @@ public class AssemblyBuilder {
 			} else {
 					stack.push(Integer.parseInt(s1));
                     value1 = stack.pop();
-                    AppendAssemblyArchive(" li " + registers[register_index] + ", " + value1);
+                    AppendAssemblyArchive("li " + registers[register_index] + ", " + value1);
                     register_index++;
 			}
 
@@ -126,7 +126,6 @@ public class AssemblyBuilder {
 				+ "move $a0, $t0 \n"
 				+ "syscall \n";
                
-		
 		System.out.println("String: \n\n" + assemblyDoc);
 
         // GERAR ARQUIVO ASSEMBLY .asm
@@ -138,14 +137,13 @@ public class AssemblyBuilder {
 		}	
 	}
 
-	
 	public void AppendAssemblyArchive(String operation) {
 		assemblyDoc += "\n " + operation;
 	}
 	
 	public void generateArchive() throws FileNotFoundException {
 		PrintWriter out = new PrintWriter("Assembly.asm");
-		out.println("#Trabalho de ARQ1 - Calculadora MIPS - Felipe H. Shulz / Mansur Sausen / Wiliam K. Franco\n");
+		out.println("#Trabalho de ARQ1 - Calculadora MIPS - Felipe H. Schulz / Mansur Sausen / Wiliam K. Franco\n");
 		out.println(assemblyDoc);
 		out.close();
 	}
