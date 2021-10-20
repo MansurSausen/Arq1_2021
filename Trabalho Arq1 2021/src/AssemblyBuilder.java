@@ -19,7 +19,7 @@ public class AssemblyBuilder {
 		// token recebe a expressão a ser lida
 		StringTokenizer str = new StringTokenizer(expressao);
 
-		Stack<Integer> stack = new Stack<Integer>(); // pilha para realizar os cálculos
+		//Stack<Integer> stack = new Stack<Integer>(); // pilha para realizar os cálculos
 
 		String s1;
 
@@ -112,10 +112,9 @@ public class AssemblyBuilder {
                                     
 				}
 			} else {
-					stack.push(Integer.parseInt(s1));
-                    value1 = stack.pop();
-                    AppendAssemblyArchive("li " + registers[register_index] + ", " + value1);
-                    register_index++;
+				value1 = Integer.parseInt(s1);
+				AppendAssemblyArchive("li " + registers[register_index] + ", " + value1);
+				register_index++;
 			}
 
 		}
